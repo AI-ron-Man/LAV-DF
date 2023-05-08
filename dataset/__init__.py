@@ -1,1 +1,1 @@
-from .lavdf import LAVDF, LAVDFDataModule
+from .lavdf import Lavdf, LavdfDataModule

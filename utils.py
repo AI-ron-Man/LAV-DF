@@ -5,6 +5,7 @@ from typing import List, Tuple, Optional
 import numpy as np
 import torch
 import torchvision
+import torchaudio
 from einops import rearrange
 from pytorch_lightning import Callback, Trainer, LightningModule
 from torch import Tensor
@@ -17,10 +18,18 @@ def read_json(path: str, object_hook=None):
 
 
 def read_video(path: str):
-    video, audio, info = torchvision.io.read_video(path)
+    video, audio, info = torchvision.io.read_video(path, pts_unit="sec")
     video = video.permute(0, 3, 1, 2) / 255
     audio = audio.permute(1, 0)
     return video, audio, info
+
+
+def read_audio(path: str):
+    return torchaudio.load(path)
+
+
+def read_image(path: str):
+    return torchvision.io.read_image(path).float() / 255.0
 
 
 def padding_video(tensor: Tensor, target: int, padding_method: str = "zero", padding_position: str = "tail") -> Tensor:
@@ -114,6 +123,17 @@ def iou_with_anchors(anchors_min, anchors_max, box_min, box_max):
     union_len = len_anchors - inter_len + box_max - box_min
     iou = inter_len / union_len
     return iou
+
+
+def ioa_with_anchors(anchors_min, anchors_max, box_min, box_max):
+    # calculate the overlap proportion between the anchor and all bbox for supervise signal,
+    # the length of the anchor is 0.01
+    len_anchors = anchors_max - anchors_min
+    int_xmin = np.maximum(anchors_min, box_min)
+    int_xmax = np.minimum(anchors_max, box_max)
+    inter_len = np.maximum(int_xmax - int_xmin, 0.)
+    scores = np.divide(inter_len, len_anchors)
+    return scores
 
 
 class LrLogger(Callback):

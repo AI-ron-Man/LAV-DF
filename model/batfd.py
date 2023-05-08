@@ -9,14 +9,14 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from dataset.lavdf import Metadata
 from loss import MaskedFrameLoss, MaskedBMLoss, MaskedContrastLoss
-from .audio_encoder import CNNAudioEncoder
+from .audio_encoder import get_audio_encoder
 from .boundary_module import BoundaryModule
 from .frame_classifier import FrameLogisticRegression
 from .fusion_module import ModalFeatureAttnBoundaryMapFusion
-from .video_encoder import C3DVideoEncoder
+from .video_encoder import get_video_encoder
 
 
-class BATFD(LightningModule):
+class Batfd(LightningModule):
 
     def __init__(self,
         v_encoder: str = "c3d", a_encoder: str = "cnn", frame_classifier: str = "lr",
@@ -27,12 +27,11 @@ class BATFD(LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters()
+        self.cla_feature_in = v_cla_feature_in
+        self.temporal_dim = temporal_dim
 
-        if v_encoder == "c3d":
-            self.video_encoder = C3DVideoEncoder(n_features=ve_features)
-
-        if a_encoder == "cnn":
-            self.audio_encoder = CNNAudioEncoder(n_features=ae_features)
+        self.video_encoder = get_video_encoder(v_cla_feature_in, temporal_dim, v_encoder, ve_features)
+        self.audio_encoder = get_audio_encoder(a_cla_feature_in, temporal_dim, a_encoder, ae_features)
 
         if frame_classifier == "lr":
             self.video_frame_classifier = FrameLogisticRegression(n_features=v_cla_feature_in)
@@ -99,7 +98,7 @@ class BATFD(LightningModule):
         a_frame_loss = self.frame_loss(a_frame_cla.squeeze(1), a_frame_label, n_frames)
 
         contrast_loss = torch.clip(self.contrast_loss(v_features, a_features, contrast_label, n_frames)
-                                   / (256 * 512), max=1.)
+                                   / (self.cla_feature_in * self.temporal_dim), max=1.)
 
         loss = fusion_bm_loss + \
                self.weight_modal_bm_loss * (a_bm_loss + v_bm_loss) / 2 + \
@@ -139,10 +138,11 @@ class BATFD(LightningModule):
             prog_bar=False, sync_dist=self.distributed)
         return loss_dict["loss"]
 
-    def predict_step(self, batch: Tensor, batch_idx: int, dataloader_idx: Optional[int] = None) -> Tensor:
+    def predict_step(self, batch: Tensor, batch_idx: int, dataloader_idx: Optional[int] = None
+    ) -> Tuple[Tensor, Tensor, Tensor]:
         video, audio, label, n_frames, v_bm_label, a_bm_label, v_frame_label, a_frame_label, contrast_label = batch
         fusion_bm_map, v_bm_map, a_bm_map, v_frame_cla, a_frame_cla, v_features, a_features = self(video, audio)
-        return fusion_bm_map
+        return fusion_bm_map, v_bm_map, a_bm_map
 
     def configure_optimizers(self):
         optimizer = Adam(self.parameters(), lr=self.learning_rate, betas=(0.5, 0.9), weight_decay=self.weight_decay)

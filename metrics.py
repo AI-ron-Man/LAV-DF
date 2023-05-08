@@ -42,13 +42,13 @@ class AP(Module):
             values = values[ind]
 
             # accumulate to calculate precision and recall
-            curve = self.calculate_curve(values, iou_threshold)
-            ap = self.calculate_ap(curve, iou_threshold)
+            curve = self.calculate_curve(values)
+            ap = self.calculate_ap(curve)
             self.ap[iou_threshold] = ap
 
         return self.ap
 
-    def calculate_curve(self, values, iou_threshold):
+    def calculate_curve(self, values):
         acc_TP = 0
         acc_FP = 0
         curve = torch.zeros((len(values), 2))
@@ -65,7 +65,7 @@ class AP(Module):
         curve = torch.cat([torch.tensor([[1., 0.]]), torch.flip(curve, dims=(0,))])
         return curve
 
-    def calculate_ap(self, curve, iou_threshold):
+    def calculate_ap(self, curve):
         y_max = 0.
         ap = 0
         for i in range(len(curve) - 1):

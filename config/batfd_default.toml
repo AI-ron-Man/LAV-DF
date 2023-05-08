@@ -1,6 +1,8 @@
-name = "baftd_default"
+name = "batfd_default"
 num_frames = 512  # T
 max_duration = 40  # D
+model_type = "batfd"
+dataset = "lavdf"
 
 [model.video_encoder]
 type = "c3d"

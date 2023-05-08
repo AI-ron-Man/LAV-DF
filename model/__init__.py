@@ -1,1 +1,2 @@
-from .batfd import BATFD
+from .batfd import Batfd
+from .batfd_plus import BatfdPlus

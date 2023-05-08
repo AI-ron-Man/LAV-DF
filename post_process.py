@@ -51,8 +51,8 @@ def soft_nms(df, alpha, t1, t2, fps):
     return new_df
 
 
-def video_post_process(meta, model_name, fps=25, alpha=0.4, t1=0.2, t2=0.9):
-    file = meta.file.split("/")[-1].replace(".mp4", ".csv")
+def video_post_process(meta, model_name, fps=25, alpha=0.4, t1=0.2, t2=0.9, dataset_name="lavdf"):
+    file = resolve_csv_file_name(meta, dataset_name)
     df = pd.read_csv(os.path.join("output", "results", model_name, file))
 
     if len(df) > 1:
@@ -72,14 +72,21 @@ def video_post_process(meta, model_name, fps=25, alpha=0.4, t1=0.2, t2=0.9):
     return [meta.file, proposal_list]
 
 
+def resolve_csv_file_name(meta: Metadata, dataset_name: str = "lavdf") -> str:
+    if dataset_name == "lavdf":
+        return meta.file.split("/")[-1].replace(".mp4", ".csv")
+    else:
+        raise NotImplementedError
+
+
 def post_process(model_name: str, metadata: List[Metadata], fps=25,
-    alpha=0.4, t1=0.2, t2=0.9
+    alpha=0.4, t1=0.2, t2=0.9, dataset_name="lavdf"
 ):
     with ProcessPoolExecutor(cpu_count() // 2 - 1) as executor:
         futures = []
         for meta in metadata:
             futures.append(executor.submit(video_post_process, meta, model_name, fps,
-                alpha, t1, t2
+                alpha, t1, t2, dataset_name
             ))
 
         results = dict(map(lambda x: x.result(), tqdm(futures)))
