@@ -133,7 +133,7 @@ The conference paper,
 }
 ```
 
-The journal paper,
+The extended journal version currently under review at CVIU,
 ```bibtex
 @article{cai2023glitch,
   title = {"Glitch in the Matrix!": A Large Scale Benchmark for Content Driven Audio-Visual Forgery Detection and Localization},
