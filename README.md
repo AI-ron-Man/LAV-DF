@@ -31,7 +31,7 @@
 
 This repo is the official PyTorch implementation for the DICTA paper [Do You Really Mean That? Content Driven Audio-Visual 
 Deepfake Dataset and Multimodal Method for Temporal Forgery Localization](https://ieeexplore.ieee.org/document/10034605)
-(Best Award), and the journal paper ["Glitch in the Matrix!": A Large Scale Benchmark for Content Driven Audio-Visual 
+(Best Award), and the journal paper [_Glitch in the Matrix_: A Large Scale Benchmark for Content Driven Audio-Visual 
 Forgery Detection and Localization](https://arxiv.org/abs/2305.01979) submitted to CVIU.
 
 ## LAV-DF Dataset
@@ -84,7 +84,7 @@ The checkpoint will be saved in `ckpt` directory, and the tensorboard log will b
 
 ### Training BA-TFD+
 
-Train the BA-TFD+ introduced in paper ["Glitch in the Matrix!": A Large Scale Benchmark for Content Driven Audio-Visual Forgery Detection and Localization](https://arxiv.org/abs/2305.01979) with default hyperparameter on LAV-DF dataset.
+Train the BA-TFD+ introduced in paper [_Glitch in the Matrix_: A Large Scale Benchmark for Content Driven Audio-Visual Forgery Detection and Localization](https://arxiv.org/abs/2305.01979) with default hyperparameter on LAV-DF dataset.
 
 ```bash
 python train.py \
@@ -136,7 +136,7 @@ The conference paper,
 The extended journal version currently under review at CVIU,
 ```bibtex
 @article{cai2023glitch,
-  title = {"Glitch in the Matrix!": A Large Scale Benchmark for Content Driven Audio-Visual Forgery Detection and Localization},
+  title = {Glitch in the Matrix: A Large Scale Benchmark for Content Driven Audio-Visual Forgery Detection and Localization},
   author = {Cai, Zhixi and Ghosh, Shreya and Dhall, Abhinav and Gedeon, Tom and Stefanov, Kalin and Hayat, Munawar},
   journal = {arXiv preprint arXiv:2305.01979},
   year = {2023},
